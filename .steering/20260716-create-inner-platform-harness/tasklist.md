@@ -56,8 +56,8 @@
 - [x] GitHub repositoryをprivateのtemplate repositoryとして設定する（GitHub APIで`private: true`、`is_template: true`を確認）
 - [x] Conventional Commits形式でcommitし、本文に`Closes #1`を記載する（`979c2f2`）
 - [x] feature branchをpushする（`origin/feature/create-inner-platform-harness`）
-- [ ] 概要・理由・変更・検証結果・関連Issueを含むPRを作成する
-- [ ] PR URLとOrganizationへ手動コピーする際の注意点を報告する
+- [x] 概要・理由・変更・検証結果・関連Issueを含むPRを作成する（PR #2）
+- [x] PR URLとOrganizationへ手動コピーする際の注意点を報告する（PR #2と履歴なしimportの確認事項を報告）
 - [x] 実装後の振り返りをこのファイルに記録する
 
 ---

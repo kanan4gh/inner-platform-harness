@@ -54,7 +54,7 @@
 ## フェーズ5: 配布設定とPR
 
 - [x] GitHub repositoryをprivateのtemplate repositoryとして設定する（GitHub APIで`private: true`、`is_template: true`を確認）
-- [ ] Conventional Commits形式でcommitし、本文に`Closes #1`を記載する
+- [x] Conventional Commits形式でcommitし、本文に`Closes #1`を記載する（`979c2f2`）
 - [ ] feature branchをpushする
 - [ ] 概要・理由・変更・検証結果・関連Issueを含むPRを作成する
 - [ ] PR URLとOrganizationへ手動コピーする際の注意点を報告する

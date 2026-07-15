@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "exclude_paths": [
+    ".git"
+  ],
+  "allowed_home_prefixes": ["/home/vscode"],
+  "allowed_github_owners": ["OWNER", "example"],
+  "allowed_source_markers": ["inner-platform-harness"],
+  "derived_catalog": "docs/derived-projects.md",
+  "require_empty_derived_catalog": true
+}

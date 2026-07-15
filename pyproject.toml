@@ -1,0 +1,28 @@
+[project]
+name = "inner-platform-harness"
+version = "0.1.0"
+description = "スペック駆動開発ハーネスのプラットフォームテンプレート"
+requires-python = ">=3.12"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.8",
+    "basedpyright>=1.20",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+include = ["*.py", ".claude/hooks/*.py", ".codex/hooks/*.py", ".kiro/hooks/*.py", "scripts/*.py"]
+
+[tool.basedpyright]
+include = [".claude/hooks", ".codex/hooks", ".kiro/hooks", "tests", "scripts"]
+# フックが scripts/steering_lint.py をimportするための解決パス
+extraPaths = ["scripts"]
+pythonVersion = "3.12"
+# フックをimportlibで動的ロードするテストの reportAny ノイズを避けるため standard とする
+typeCheckingMode = "standard"

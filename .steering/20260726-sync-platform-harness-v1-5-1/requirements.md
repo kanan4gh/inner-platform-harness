@@ -93,8 +93,8 @@
 ### 検証と配布
 
 - [x] pytest、ruff、basedpyright、steering lint、外部有料自動化lint、配布衛生lintが成功する。
-- [ ] 3ハーネスのG3対話型受け入れ結果が`acceptance-record.md`に記録される。
-- [ ] GitHub Actions自動runと有料LLM headless modeの起動が0件である。
+- [x] 3ハーネスのG3対話型受け入れ結果が`acceptance-record.md`に記録される。
+- [x] GitHub Actions自動runと有料LLM headless modeの起動が0件である。
 - [ ] `feature/sync-platform-harness-v1-5-1`からPRが作成される。
 
 ## 成功指標

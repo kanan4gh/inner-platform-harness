@@ -108,14 +108,14 @@ def iter_target_files(root: Path, policy: Policy) -> list[Path]:
         raise PolicyError(f"project root is not a directory: {root}")
     try:
         result = subprocess.run(
-            ("git", "ls-files", "-z"),
+            ("git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"),
             cwd=root,
             check=False,
             shell=False,
             capture_output=True,
         )
     except OSError as exc:
-        raise PolicyError(f"cannot list tracked files: {exc}") from exc
+        raise PolicyError(f"cannot list distributable files: {exc}") from exc
     if result.returncode != 0:
         message = result.stderr.decode("utf-8", errors="replace").strip()
         raise PolicyError(f"git ls-files failed: {message or result.returncode}")
@@ -127,7 +127,7 @@ def iter_target_files(root: Path, policy: Policy) -> list[Path]:
         try:
             relative = Path(raw_path.decode("utf-8"))
         except UnicodeDecodeError as exc:
-            raise PolicyError("tracked path is not valid UTF-8") from exc
+            raise PolicyError("distributable path is not valid UTF-8") from exc
         candidate = root / relative
         if not _is_excluded(relative, policy.exclude_paths) and (
             candidate.is_file() or candidate.is_symlink()
@@ -217,8 +217,9 @@ def scan_text(
     if policy.require_empty_derived_catalog and path == policy.derived_catalog:
         for offset in _catalog_data_line_offsets(text):
             violations.append(Violation(path, _line_number(text, offset), "derived-catalog-data"))
-    for match in LEGACY_CANONICAL_PATTERN.finditer(text):
-        violations.append(Violation(path, _line_number(text, match.start()), "canonical-name"))
+    if path.parts[:1] != (".steering",):
+        for match in LEGACY_CANONICAL_PATTERN.finditer(text):
+            violations.append(Violation(path, _line_number(text, match.start()), "canonical-name"))
     return violations
 
 

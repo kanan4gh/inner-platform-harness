@@ -14,7 +14,9 @@ uv run python3 scripts/local_quality_gate.py
 
 pytest、ruff、basedpyright、steering lint、metered automation lint、distribution hygiene lintを固定順で実行する。ネットワーク、GitHub API、LLM CLIは呼び出さない。PR前に実行日時と結果を記録する。
 
-distribution hygiene lintはGitで追跡またはstageされたテキストファイルを走査し、個人ホームパス、未許可のGitHub所有者、SOURCE表記、配布時点では空であるべき派生台帳への実データ混入を検出する。本作業のIssue URL等を保持する`.steering/`だけは配布衛生検査から除外し、steering lintで別に規律を検証する。
+distribution hygiene lintはGitで追跡またはstageされたファイルに加え、ignoreされていない未追跡ファイルも走査し、個人ホームパス、未許可のGitHub所有者、SOURCE表記、配布時点では空であるべき派生台帳への実データ混入を検出する。これにより最終ゲート後のcommit候補へ新規ファイルが未検査のまま混入することを防ぐ。`.steering/`も走査対象であり、そのリポジトリ自身のoriginと一致するIssue URLだけを作業証跡として許可する。一方、同期作業等で旧正典名を履歴として記録できるよう、正典名の検査だけは`.steering/`へ適用しない。metered automation lintでは履歴引用による誤検知を避けるため`.steering/`を除外し、steering lintでは作業規律を別途検証する。
+
+会社Organizationへ配置するテンプレート内容は、READMEの手順どおり`git archive`で生成する。`.gitattributes`の`export-ignore`により日付付きの保守作業steeringを除外し、`.steering/example/`だけを配布する。派生プロジェクトの作業ツリーでは`.steering/`をignoreしないため、派生先自身のsteering履歴は通常どおり追跡できる。
 
 ### 対話型実機受け入れ（変更種別に応じて必須）
 
@@ -36,7 +38,16 @@ workflowは配布互換性のため残すが、既定では無効とし、ファ
 - `docs/ideas/`: 正式手順ではない検討履歴
 - 本ポリシー: 禁止シグネチャを説明する正典
 - lint本体・policy・専用テスト: 検出定義と違反fixtureを保持するため
+- `.claude/worktrees/`: 同一リポジトリの別checkout。**新たな指示面ではなく、検査済み指示面の重複**である
 - `.git/`、仮想環境、キャッシュ
+
+`.claude/worktrees/`の除外は次の理由による。
+
+- 除外しても検査されない指示面は生まれない。その作業ツリーで作業する間は**その作業ツリー自身がルートとなってlintが走り**(自分の中に`.claude/worktrees/`を持たないため全ファイルが走査される)、マージ後は同じ内容が親リポジトリの実体として次のゲート実行時に検査される
+- 除外しない場合、`include_paths`の`.claude`を再帰走査する過程で作業ツリー内の専用テスト・`.steering/`・`docs/ideas/`が拾われる。除外判定はリポジトリルート相対のため、入れ子のcheckout内には効かない
+- 作業ツリーはPR作成後に後片付けするが、作業中・並行作業中・後片付け前は正当に存在する。除外がないと、その間に親リポジトリでゲートを回すたびに誤検出で落ちる
+
+`.claude/`直下の現行指示面(command、skill、agent、hooks、settings)は引き続き走査対象である。除外は`.claude/worktrees/`配下に限定し、これを`tests/lint/test_metered_automation_lint.py`が実際の走査結果で固定する。
 
 除外を追加する場合は、技術的理由と誤検出しないテストを同時に追加する。実行手順を隠す目的の除外は禁止する。
 

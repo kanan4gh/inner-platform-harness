@@ -7,7 +7,7 @@
 # 汎用層（AIエージェントとの協働原則）
 
 <!-- SOURCE: inner-platform-harness -->
-<!-- UPDATED: 2026-07-15 (Kiroを第3ハーネスとして追加。ローカル品質ゲートを必須の正、Actionsを任意の手動ミラー、実機確認を対話型受け入れとして定義) -->
+<!-- UPDATED: 2026-07-26 (上流v1.5.1同期。軽量パス、終端品質ゲート、G3受け入れ順序、worktree走査除外を反映) -->
 <!-- 他のリポジトリへの移植時: このセクションはそのままコピーする -->
 
 ## スペック駆動開発の基本原則
@@ -55,6 +55,8 @@
 - `requirements.md`: 今回の要求内容（関連IssueのURLを必ず記載）
 - `design.md`: 実装アプローチ
 - `tasklist.md`: 具体的なタスクリスト
+
+**通常パスは上記3ファイル、軽量パスは `design.md` を省略した2ファイル**とする。軽量パスは add-feature 手順の適用基準4項目をすべて満たす場合にのみ選択でき、`requirements.md` に `- **軽量パス**: 適用` の宣言行を置く。**判定結果(基準4項目それぞれ)は通常パス・軽量パスのどちらでも `requirements.md` の「パス判定」セクションに記録し、add-feature 手順ステップ4.5で選択したパスにかかわらずユーザーへ提示する**(設計判断が発生しないことが適用条件のため、設計の記述は requirements.md の実装対象セクションで足りる)。基準と判定手順の正は `docs/procedures/add-feature.md` ステップ4にある。
 
 命名規則: `20250115-add-user-profile` 形式
 
@@ -109,7 +111,7 @@ steering 手順の実体は `docs/procedures/steering.md`(テンプレートは 
 特定の開発作業における「今回何をするか」を定義:
 
 - `requirements.md`: 今回の作業の要求内容
-- `design.md`: 変更内容の設計
+- `design.md`: 変更内容の設計（軽量パス適用時は省略する）
 - `tasklist.md`: タスクリスト
 
 ### 手順書(`docs/procedures/`)
@@ -182,7 +184,15 @@ SDDプロセスの各手順(steering / distill / add-feature / review-docs / val
 - **development-guidelines.md** - 開発ガイドライン
 - **glossary.md** - ユビキタス言語定義
 
+本プロダクト固有の追加:
+
+- **harness-guide.md** - ハーネス運用ガイド
+- **external-automation-policy.md** - 外部自動化ポリシー（禁止する非対話LLM実行と検査範囲の正典）
+- **derived-projects.md** - 派生プロジェクト台帳
+
 推奨セット以外に必要なドキュメントがあればここに追記する。
+
+**この一覧は add-feature 手順の軽量パス基準3（対象文書の更新が不要）の判定対象そのものである。** `docs/` 直下にドキュメントを追加・削除したら必ずこの一覧も更新する（一覧と実態が食い違うとパス判定が不定になる。両者の一致は `tests/procedures/test_lightweight_path_criteria.py` が検証する）。
 
 ### 記憶層の運用
 
@@ -266,7 +276,7 @@ AGENTS.mdはSDDプロセスの正典であり、3層構造になっています�
 - 本書(正典)は変更しない。使用するハーネスのアダプタ(Claude Code: `CLAUDE.md`+`.claude/`、Codex: `.codex/`+`.agents/skills/`、Kiro: `.kiro/`)を追加・調整する
 - **併用規約**:
   - 作業開始時に requirements.md の「使用ハーネス」欄に使用ハーネスを記録する(蒸留時にハーネス差を分析するため)
-  - 成果物(`.steering/` の3ファイル・tasklist更新形式)は手順書とテンプレートが固定しており、どのハーネスでも同一ステアリングを継続できる
+  - 成果物(`.steering/` のステアリングファイル(通常パス3ファイル・軽量パス2ファイル)・tasklist更新形式)は手順書とテンプレートが固定しており、どのハーネスでも同一ステアリングを継続できる
   - 編集中のtasklistリマインドはClaude Codeのみ。他ハーネスではリアルタイム更新を自律的に徹底する(Stopフックとローカル品質ゲートが最終捕捉)
 
 ### 汎用層を更新したとき（スペック駆動開発の原則を改善した等）

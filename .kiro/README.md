@@ -56,7 +56,7 @@ kiro-cli --agent sdd
 
 起動後に`/context`を実行し、`Active agent context: sdd`、`AGENTS.md`、5つのworkspace skillが各1回だけ表示されることを確認します。
 
-`sdd.json`はread / write / shell / subagentを利用可能にしますが、事前許可するのはreadだけです。write / shellはKiroの確認対象のままです。Stopフックは最新tasklist.mdに未完了タスクがあればblock decisionを返し、同一内容を3回ブロックした後は無限ループ防止のためfail-openします。
+`sdd.json`はread / write / shell / subagentを利用可能にしますが、事前許可するのはreadだけです。write / shellはKiroの確認対象のままです。Stopフックは最新tasklist.mdが着手済み(完了タスク1件以上)で未完了タスクを残していればblock decisionを返し(完了ゼロの未着手tasklistは承認ゲート/作業前とみなしfail-open)、同一内容を3回ブロックした後は無限ループ防止のためfail-openします。
 
 ## 実機受入チェックリスト
 
@@ -81,12 +81,15 @@ Stop確認用ディレクトリは`.steering/YYYYMMDD-zz-kiro-stop-smoke/`とし
 Stopフックとlintの実機確認だけを行い、製品ファイルは変更しない。
 ```
 
-`tasklist.md`:
+`tasklist.md`(形の正は`docs/procedures/harness-acceptance.md`の「Stop確認用sentinel tasklistの形」):
 
 ```markdown
 # タスクリスト
+- [x] Stop smoke 着手マーカー（人が事前に付ける。Stop契約の「着手済み」条件を満たすため）
 - [ ] Stop smoke sentinel（agentは完了・更新しない。最初のblock後に人が中断する）
 ```
+
+着手マーカーは人が最初から`[x]`で置きます。完了ゼロの未着手tasklistは承認ゲート/作業前とみなしてfail-openするため、未完了行だけではblockを観察できません。
 
 選択対象を確認します。
 

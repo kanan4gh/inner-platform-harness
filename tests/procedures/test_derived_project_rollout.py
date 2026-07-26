@@ -143,3 +143,17 @@ def test_procedure_requires_local_and_interactive_validation_without_paid_automa
     assert "人がIDEまたは対話型CLI受け入れ" in text
     assert "GitHub Actions自動runと有料LLM headless mode起動が0件" in text
     assert "従量課金型headless mode" in text
+
+
+def test_procedure_orders_g3_record_and_terminal_gate_without_tasklist_cycle() -> None:
+    text = procedure_text()
+    sequence = (
+        "候補ゲート → 候補コミット → G3 → `acceptance-record.md`へ記録 → 最終ゲート"
+    )
+    assert "add-feature.md`ステップ8-B" in text
+    assert sequence in text
+    assert "記録をtasklistのチェックボックスにしない" in text
+    assert sequence.index("候補ゲート") < sequence.index("候補コミット")
+    assert sequence.index("候補コミット") < sequence.index("G3")
+    assert sequence.index("G3") < sequence.index("`acceptance-record.md`へ記録")
+    assert sequence.index("`acceptance-record.md`へ記録") < sequence.index("最終ゲート")

@@ -14,7 +14,15 @@
 
 ### 1. 会社Organizationへ配置する
 
-このリポジトリを会社Organizationへコピーし、privateのtemplate repositoryとして設定します。コピーには元リポジトリの履歴を含めず、会社側で新しいGit履歴を開始してください。
+このリポジトリを配布アーカイブとして会社Organizationへコピーし、privateのtemplate repositoryとして設定します。コピーには元リポジトリの履歴を含めず、会社側で新しいGit履歴を開始してください。
+
+`git archive`は`.gitattributes`の`export-ignore`を適用し、テンプレート保守作業の日付付きsteeringを除外して`.steering/example/`だけを残します。任意の空ディレクトリを用意し、同期済みcommitから次のように展開してください。
+
+```bash
+git archive --format=tar HEAD | tar -x -C /path/to/empty/inner-platform-harness-export
+```
+
+展開後のディレクトリで新しいGitリポジトリを初期化し、会社Organizationへpushします。作業ツリーの単純コピーや元リポジトリのcloneを会社側テンプレートとして使うと、保守作業のsteeringまたは元のGit履歴が混入するため使用しません。
 
 配置後に次を確認します。
 
@@ -82,6 +90,7 @@ GitHub Actionsは自動起動しない任意の手動ミラーです。従量課
 - 個人ホームディレクトリの絶対パス
 - secrets、認証情報、ローカル設定
 - hooksの実行時状態、cache、coverage成果物
+- テンプレート保守作業の日付付きsteering（配布物には`.steering/example/`だけを含める）
 - テンプレート作成元のGit履歴
 
 `scripts/distribution_hygiene_lint.py`が構造的な再混入を検査します。会社固有の派生プロジェクト台帳を運用する場合は、Organization配置後に配布衛生ポリシーを会社の情報境界へ合わせて明示的に変更してください。

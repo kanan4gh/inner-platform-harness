@@ -83,8 +83,9 @@ IDE固有のAgent selectorとStop非block表示は、今回はKiro CLI経路を�
 
 - 禁止headless mode起動回数: **0回**
 - headless誤起動: **なし**
-- GitHub Actions run: **0件**（2026-07-26 17:45 JST、GitHub API `total_count: 0`）
+- GitHub Actions run: **0件**（PR #4作成後の2026-07-26 17:55 JSTにもGitHub API `total_count: 0`）
 - 意図しない製品ファイル変更: **なし**
 - 一時cloneの変更: fixture、確認用scratch、KiroのStop状態ファイルだけ
 - sentinel更新: **0件**
 - 後片付け: 各対話セッションを終了。使い捨てcloneは正本へ持ち帰らず、観察結果だけを本記録へ反映した
+- PR: #4

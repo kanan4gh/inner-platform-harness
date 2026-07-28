@@ -29,10 +29,9 @@
 - **判定**: 要
 - **対象**: Claude Code / Codex / Kiro
 - **理由**: Claude CodeのStop hook登録、Codexのhook定義、Kiroのhook登録を削除し、各ハーネスの設定・アダプタ説明・終了挙動を変更するため。
-- **実施主体**: 計画承認を根拠に、Codexが3ハーネスの対話型CLIをPTYで自動操作する。`CLAUDE_CONFIG_DIR` / `CODEX_HOME` / `KIRO_HOME`で設定ホームを、`CLAUDE_CODE_TMPDIR` / Codex `sqlite_home` / `KIRO_CHAT_LOG_FILE`でruntime / logをハーネス別に隔離し、既存ユーザー設定を変更しない。`DISABLE_UPDATES=1` / `check_for_update_on_startup=false` / `app.disableAutoupdates=true`でCLI更新を抑止する。ログイン・MFA・GUI専用操作等の阻害時だけユーザーへ最小操作を依頼する。
 - **確認軸**: 新しいスキル/コマンドの実読込、承認境界、通常応答が未完了tasklistでブロックされないこと、`pause / resume / complete`と通常/完了lintが共通経路として機能すること。
-- **GUI境界**: GUI IDEは標準合格条件にせず、変更対象にGUI専用能力がある場合だけ例外確認する。
-- **限定操作**: 各ハーネス専用の`/private/tmp/inner-platform-harness-g3-*` clone・設定ホーム・runtime内で、fixture読取、`acceptance-scratch/{harness}.txt`への`g3-write-ok`書込、`pwd`を各1回確認する。trust / read / write / shellは単発確認だけとし、永続許可・外部API・リモート変更を行わない。
+- **実行方針**: G3は実行エージェントが既存の対話型手順を実行する。G3専用の自動化基盤は追加しない。
+- **阻害時**: 認証、MFA、権限確認等で止まった時点で調査を続けず、直ちにユーザーへ必要最小限の操作を依頼する。
 
 ## 背景
 
@@ -104,11 +103,7 @@
 - [ ] pytest、ruff、basedpyright、steering lint、metered automation lint、distribution hygiene lintが成功する。
 - [ ] 状態遷移、通常/完了lint、latest境界拒否、配布archiveを実データで観察する。
 - [ ] 3ハーネスのG3対話型受け入れ結果が`acceptance-record.md`に記録される。
-- [ ] G3は実行エージェントが対話型CLI + PTYで自動実施し、各ハーネスの操作をユーザーへ差し戻さない。
-- [ ] 3ハーネスのtrustと単発許可が公式環境変数で切り替えた使い捨て設定ホームへ隔離され、既存ユーザー設定・trust store変更が0件である。
-- [ ] 3ハーネスのruntime / logが使い捨て領域へ隔離され、既存runtime / log領域へのG3由来の書き込みが0件である。
-- [ ] G3中のCLI自動更新・手動更新が0件で、記録したバージョンがセッション中に固定される。
-- [ ] 既存設定ホームから認証情報や設定を使い捨て環境へコピーせず、GUIは専用能力の例外確認に限定される。
+- [ ] G3は実行エージェントが実施し、認証等の阻害時だけ直ちにユーザーへ必要最小限の操作を依頼する。
 - [ ] GitHub Actions自動runと従量課金型LLM headless modeの起動が0件である。
 - [ ] Conventional Commit、push、PR作成まで完了する。
 

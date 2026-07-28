@@ -158,13 +158,8 @@ def test_general_example_is_placeholder_only_and_non_authoritative() -> None:
 def test_procedure_requires_local_and_interactive_validation_without_paid_automation() -> None:
     text = procedure_text()
     assert "local_quality_gate.py" in text
-    assert "実行エージェントがハーネスごとの公式環境変数で使い捨て設定ホームを隔離" in text
-    for variable in ("CLAUDE_CONFIG_DIR", "CODEX_HOME", "KIRO_HOME"):
-        assert variable in text
-    assert "既存設定ホームから認証情報や設定をコピーせず" in text
-    assert "GUIは専用能力の例外確認に限定" in text
-    assert "各ハーネスの操作をユーザーへ差し戻さない" in text
-    assert "必要最小限の操作をユーザーへ依頼" in text
+    assert "実行エージェントがIDEまたは対話型CLI受け入れ" in text
+    assert "直ちにユーザーへ必要最小限の操作を依頼" in text
     assert "GitHub Actions自動runと有料LLM headless mode起動が0件" in text
     assert "従量課金型headless mode" in text
     assert "状態を`complete`へ遷移" in text

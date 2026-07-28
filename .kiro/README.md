@@ -49,12 +49,11 @@ Kiro IDE / CLIともStopフックを使いません。未完了の`active`作業
 
 ## 実機受け入れ
 
-共通の受け入れ方針、fixture、証跡様式、headless modeを使わない規則は`docs/procedures/harness-acceptance.md`を参照してください。自動G3の標準面は、`KIRO_HOME`を使い捨て設定ホーム、`KIRO_CHAT_LOG_FILE`を使い捨てruntimeへ向け、使い捨て設定で`app.disableAutoupdates=true`にしたKiro CLI + 対話型PTYです。既存`~/.kiro`を変更せず、認証情報や設定を使い捨てdirectoryへコピーしません。受け入れは対象commitの隔離cloneで実施し、製品作業用のステアリングと混同しません。IDEは標準合格条件ではなく、IDE固有能力が必須で許可済みGUI自動化がない場合や、trust・ログイン等を使い捨て設定ホームへ隔離できない場合だけ、ユーザーへ最小操作を依頼します。
+共通の受け入れ方針、fixture、証跡様式、headless modeを使わない規則は`docs/procedures/harness-acceptance.md`を参照してください。受け入れは対象commitの隔離cloneで実施し、製品作業用のステアリングと混同しません。
 
-### IDE（例外的補足確認）
+### IDE
 
-- 自動G3の標準合格条件には含めず、変更対象にIDE専用能力がある場合だけ確認する
-- 既存ユーザープロファイルへのworkspace trust永続化が必要なら自動承認しない
+- workspaceをtrustする
 - 5 skillsと2 agentsが表示される
 - 未完了の`active` fixtureを読んで確認文字列だけ返す依頼が、終了ブロックなく完了する
 - 状態遷移CLIと通常／完了lintの結果を共通手順どおり観察する

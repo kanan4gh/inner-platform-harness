@@ -31,7 +31,7 @@ PR前の必須入口は次です。
 uv run python3 scripts/local_quality_gate.py --steering YYYYMMDD-task-name
 ```
 
-GitHub Actionsは`workflow_dispatch`だけの任意ミラーで、PRやpushでは自動起動しません。LLMのUI・権限・応答終了非ブロックは`docs/procedures/harness-acceptance.md`に従い、計画承認後に実行エージェントが公式環境変数で切り替えた使い捨て設定ホームへtrustを隔離し、対話型CLI + PTYで自動確認します。既存ユーザー設定は変更せず、GUIは専用能力の例外確認に限定します。隔離不能・ログイン・MFA・GUI専用操作等の阻害時だけユーザーへ最小操作を依頼し、標準受け入れに従量課金型headless modeを使いません。
+GitHub Actionsは`workflow_dispatch`だけの任意ミラーで、PRやpushでは自動起動しません。LLMのUI・権限・応答終了非ブロックは`docs/procedures/harness-acceptance.md`に従い、実行エージェントが対話型IDE / CLIで確認します。認証等で止まった場合は直ちにユーザーへ必要最小限の操作を依頼し、標準受け入れに従量課金型headless modeを使いません。
 
 ## 前提条件
 

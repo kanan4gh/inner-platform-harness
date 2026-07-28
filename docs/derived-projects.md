@@ -65,10 +65,10 @@ candidate
 
 ## オンデマンド運用
 
-1. ユーザーがこの台帳からremoteを1件指定する。
-2. 実行エージェントは候補行を出発点にするが、GitHub metadataとローカル状態を再取得する。
+1. ユーザーがremoteを`OWNER/REPOSITORY`で1件指定する。台帳に候補行があればその行を出発点にし、空または未登録でも指定remoteのG0 preflightを開始できる。
+2. 実行エージェントはGitHub metadataとローカル状態を再取得する。会社Organizationへ配置済みで情報管理規程が許す場合だけ、未登録remoteを独立した台帳更新として追加する。配布元の本リポジトリでは空台帳を維持する。
 3. 対象リポジトリに独立Issue・steering・feature branchを作成し、同期元release / commitを固定する。
 4. `docs/procedures/derived-project-rollout.md`に従って、差分同期または移行後同期を行う。
-5. PRマージ後、`State`、`Last source`、`Last inspected`、`Decision / next action`を更新する。
+5. PRマージ後、会社Organizationへ配置済みの運用版では`State`、`Last source`、`Last inspected`、`Decision / next action`を更新する。配布元の本リポジトリでは台帳を更新せず、空のまま維持する。
 
 候補登録、inner-platform-harness release作成、他候補の同期完了をトリガーにした自動展開は行わない。複数remoteへの一括Issue・一括branch・一括PRも作らない。

@@ -1,11 +1,11 @@
 # 派生プロジェクトのオンデマンド展開手順
 
-リリース済みinner-platform-harness正典を、ユーザーが指定した1つの派生プロジェクトへ安全に展開する手順である。候補と状態は`docs/derived-projects.md`で管理する。
+リリース済みinner-platform-harness正典を、ユーザーが指定した1つの派生プロジェクトへ安全に展開する手順である。会社Organizationへ配置済みの運用環境では候補と状態を`docs/derived-projects.md`で管理する。配布元の空台帳や未登録remoteでも、ユーザーが`OWNER/REPOSITORY`を明示すれば初回のG0を開始できる。
 
 ## 原則
 
 - 展開単位は`1 inner-platform-harness release × 1 GitHub remote × 1 feature branch × 1 PR`とする。
-- 台帳登録だけで展開を開始しない。G0でユーザーが対象remoteを指定する。
+- 台帳登録だけで展開を開始しない。G0でユーザーが対象remoteを指定する。台帳行の不存在は、明示指定されたremoteの初回preflightを妨げない。
 - 対象リポジトリ内に独立Issue・steering・feature branchを作り、実行・承認・履歴を対象remoteへ閉じ込める。
 - dirtyな既存checkoutを清掃・stash・上書きして移行を始めない。最新baseからclean worktreeまたはclean cloneを用意する。
 - プロダクト固有層、技術スタック固有層、ハーネス固有差分を正典コピーで暗黙に上書きしない。
@@ -40,7 +40,7 @@
 | G0 対象選択・阻害要因裁定 | 対象remoteを指定し、競合PR等をマージ・破棄・新移行へ引継ぎのいずれにするか裁定 | 候補・状態・競合範囲・再preflight結果 |
 | G1 計画承認 | 対象側requirements / design / tasklistを承認 | 差分調査、manifest、検証計画、bootstrap executor |
 | G2 競合裁定 | 既存固有設定を保持・置換・統合のどれにするか | ファイル単位の比較と選択肢 |
-| G3 対話型受入 | Claude / Codex / KiroのUI・権限・Stopを人が操作 | 無課金の実機手順と記録テンプレート |
+| G3 対話型受入 | Claude / Codex / KiroのUI・権限・終了非ブロック・状態/lint経路を実行エージェントが操作 | 無課金の実機手順と記録テンプレート |
 | G4 マージ | PRをレビューしてマージ | ローカル品質ゲート、差分、受入証跡 |
 
 G2はG1で裁定できなかった実競合がある場合だけ停止する。競合がなければ、G1で承認されたtasklist完了まで自動継続する。
@@ -49,7 +49,7 @@ G2はG1で裁定できなかった実競合がある場合だけ停止する。�
 
 ### 対象の再確認
 
-1. `docs/derived-projects.md`からユーザーが指定したremoteを特定する。
+1. ユーザーが指定した`OWNER/REPOSITORY`を対象remoteとして特定する。`docs/derived-projects.md`に候補行があれば補助情報として照合するが、空または未登録でもG0を続行する。
 2. GitHub上のdefault branch、archive / template状態、最新commitを確認する。
 3. 利用するremote-tracking refをfetchした日時・方法とcommit OIDを記録する。
 4. ローカルcheckoutのdirty / ahead / behind、active Issue / PR / branchを確認する。
@@ -134,20 +134,19 @@ activeな移行PRや同じ正典ファイルを変更するbranchがある場合
 
 1. 対象固有の既存テスト、lint、型検査を実行する。
 2. 導入したsteering lint、有料自動化lint、アダプタ構造テストを実行する。
-3. 対象に合わせた`local_quality_gate.py`を単一入口として実行する。
-4. docs変更を独立した文脈でレビューし、実装とsteeringの準拠を検証する。
-5. アダプタ・権限・hooksを変更したハーネスだけ、G3で人がIDEまたは対話型CLI受け入れを行う。G3の実施位置と記録・再ゲートの順序は`docs/procedures/add-feature.md`ステップ8-B(候補ゲート → 候補コミット → G3 → `acceptance-record.md`へ記録 → 最終ゲート → 記録コミット → PR)に従う。
-6. GitHub Actions自動runと有料LLM headless mode起動が0件であることを記録する。
+3. docs変更を独立した文脈でレビューし、実装とsteeringの準拠を検証する。
+4. アダプタ・権限・hooks変更についてG3要否と対象ハーネスを確定する。G3要の場合は実行エージェントがIDEまたは対話型CLI受け入れを行うが、実施自体はフェーズ5で状態を`complete`へ遷移し候補ゲートと候補コミットを終えた後に行う。認証・MFA・権限確認等で止まった場合は直ちにユーザーへ必要最小限の操作を依頼し、解消後に同じ固定commitから再開する。
+5. GitHub Actions自動runと有料LLM headless mode起動が0件であることを記録する。
 
 1つのハーネスが受け入れ不能でも、別ハーネスの合格で代替しない。能力差、代替した決定論的ゲート、未確認理由を記録する。
 
 ## フェーズ5: PR、G4マージ、台帳更新
 
-1. tasklistへ同期元、manifest、bootstrap executor、authority handoff、検証を記録する。実機受入(G3)の結果は`acceptance-record.md`へ記録し、記録後に最終ゲートを再実行する(`add-feature.md`ステップ8-B手順4〜5。記録をtasklistのチェックボックスにしない)。
-2. 対象側のConventional CommitとPRを作成する。
+1. tasklistへ同期元、manifest、bootstrap executor、authority handoff、検証を記録し、全チェック完了後に状態を`complete`へ遷移する。
+2. 対象に合わせた`local_quality_gate.py`を単一入口とし、G3不要なら`add-feature.md`ステップ8-A、G3要ならステップ8-Bに従う。後者は候補ゲート → 候補コミット → G3 → `acceptance-record.md`へ記録 → 最終ゲート → 記録コミット → PRの順で行う。状態遷移・ゲート・記録をtasklistのチェックボックスにしない。
 3. G4で人がPRをマージする。
 4. 必要な対象プロジェクトreleaseを作成する。
-5. inner-platform-harnessの`docs/derived-projects.md`を別の台帳更新PRで更新する。
+5. 会社Organizationへ配置済みの運用版で、情報管理規程が台帳への対象remote記録を許す場合だけ、`docs/derived-projects.md`を別の台帳更新PRで更新する。配布元inner-platform-harnessでは台帳を更新せず、空のまま維持して対象側Issue・steering・PRを展開証跡とする。
 
 ```markdown
 ## 展開完了記録

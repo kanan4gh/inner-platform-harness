@@ -9,10 +9,10 @@
 ### ローカル品質ゲート（必須）
 
 ```bash
-uv run python3 scripts/local_quality_gate.py
+uv run python3 scripts/local_quality_gate.py --steering YYYYMMDD-task-name
 ```
 
-pytest、ruff、basedpyright、steering lint、metered automation lint、distribution hygiene lintを固定順で実行する。ネットワーク、GitHub API、LLM CLIは呼び出さない。PR前に実行日時と結果を記録する。
+pytest、ruff、basedpyright、steering lint、metered automation lint、distribution hygiene lintを固定順で実行する。ネットワーク、GitHub API、LLM CLIは呼び出さない。PR前は`--steering`でPR対象を明示し、実行日時と結果を記録する。
 
 distribution hygiene lintはGitで追跡またはstageされたファイルに加え、ignoreされていない未追跡ファイルも走査し、個人ホームパス、未許可のGitHub所有者、SOURCE表記、配布時点では空であるべき派生台帳への実データ混入を検出する。これにより最終ゲート後のcommit候補へ新規ファイルが未検査のまま混入することを防ぐ。`.steering/`も走査対象であり、そのリポジトリ自身のoriginと一致するIssue URLだけを作業証跡として許可する。一方、同期作業等で旧正典名を履歴として記録できるよう、正典名の検査だけは`.steering/`へ適用しない。metered automation lintでは履歴引用による誤検知を避けるため`.steering/`を除外し、steering lintでは作業規律を別途検証する。
 
@@ -20,7 +20,7 @@ distribution hygiene lintはGitで追跡またはstageされたファイルに�
 
 ### 対話型実機受け入れ（変更種別に応じて必須）
 
-LLMの判断やハーネスUIを確認する場合は`docs/procedures/harness-acceptance.md`に従い、利用を許可されたIDEまたは対話型CLIで行う。自動化できる構造、形式、フック判定はpytestへ寄せる。
+LLMの判断やハーネスUIを確認する場合は`docs/procedures/harness-acceptance.md`に従い、利用を許可されたIDEまたは対話型CLIで行う。自動化できる構造、形式、状態遷移・lint判定、Stop不在契約はpytestへ寄せる。
 
 ### GitHub Actions（任意）
 

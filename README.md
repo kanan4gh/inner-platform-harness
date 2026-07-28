@@ -74,7 +74,7 @@ PR前の必須入口は次の1コマンドです。
 uv run python3 scripts/local_quality_gate.py --steering YYYYMMDD-task-name
 ```
 
-GitHub Actionsは自動起動しない任意の手動ミラーです。従量課金型LLM headless modeを標準検証や受け入れに使用しません。実機受け入れは[`docs/procedures/harness-acceptance.md`](docs/procedures/harness-acceptance.md)に従い、許可済みのIDEまたは対話型CLIで行います。
+GitHub Actionsは自動起動しない任意の手動ミラーです。従量課金型LLM headless modeを標準検証や受け入れに使用しません。G3実機受け入れは、計画承認後に実行エージェントが`CLAUDE_CONFIG_DIR` / `CODEX_HOME` / `KIRO_HOME`で切り替えた使い捨て設定ホームへtrustを隔離し、許可済みハーネスの対話型CLIをPTYで自動操作します。既存ユーザー設定は変更せず、GUIは専用能力の例外確認に限定します。隔離不能・ログイン・MFA・GUI専用操作等で阻害された場合だけ、ユーザーへ必要最小限の操作を依頼します。詳細は[`docs/procedures/harness-acceptance.md`](docs/procedures/harness-acceptance.md)を参照してください。
 
 ## ハーネスの選択
 

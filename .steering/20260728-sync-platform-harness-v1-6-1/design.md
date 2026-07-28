@@ -13,7 +13,7 @@ inner-platform-harness main ─ preserve / replace / add / merge / exclude
                                       │
                   distribution hygiene + 6-check quality gate
                                       │
-                        candidate commit + 3-harness G3
+                  candidate commit + agent-automated interactive G3
                                       │
                                      PR
 ```
@@ -147,6 +147,40 @@ canonical `v1.5.1..v1.6.1`の49pathを、Replace 16（更新8・削除8）/ Add 
 - distribution hygiene lintのpolicyとarchive回帰テストを変更しない。空台帳は維持しつつ、会社配置後の未登録remoteをG0へ渡せる運用だけを明文化する。
 - Merge pathの変更後に個人固有語彙、絶対home path、SOURCE markerを監査する。
 
+### 4. G3対話型CLI + PTY自動実行
+
+**責務**:
+
+- 社内ハーネス展開時に、Claude Code / Codex / Kiroの受け入れ操作をユーザーへ差し戻さない。
+- 計画承認を限定されたG3操作の事前承認とし、候補commit固定後に実行エージェントが自動継続する。
+- 非対話headless modeを使わず、各ハーネスの実UI・trust・権限境界・終了非ブロックを観察する。
+
+**実装の要点**:
+
+- ハーネスごとに独立clean cloneと対話型CLI + PTYセッションを使う。
+- Claude Codeは`CLAUDE_CONFIG_DIR`、Codexは`CODEX_HOME`、Kiroは`KIRO_HOME`をハーネス別の使い捨てdirectoryへ向け、trustと単発許可を既存ユーザー設定から隔離する。
+- Claude Codeは`CLAUDE_CODE_TMPDIR`、Codexは使い捨て`config.toml`の`sqlite_home`、Kiroは`KIRO_CHAT_LOG_FILE`でruntime / logもハーネス別の使い捨てdirectoryへ隔離する。Codex logは既定の`$CODEX_HOME/log`内に置く。
+- Claude Codeは`DISABLE_UPDATES=1`、Codexは使い捨て`config.toml`の`check_for_update_on_startup=false`、Kiroは使い捨て設定の`app.disableAutoupdates=true`で自動更新を抑止し、起動時のCLIバージョンを固定する。
+- 既存設定ホームから認証情報・設定・sessionをコピーせず、起動前後の既存ユーザー設定・trust store変更が0件であることを記録する。
+- 自動承認は使い捨てclone内の単発fixture / scratch操作に限定し、永続権限・グローバル設定を変更しない。GUI IDEは標準合格条件にせず、GUI専用能力だけを例外確認する。
+- ログイン、MFA、GUI専用操作、ライセンス、組織ポリシー等の外部阻害時だけ、ユーザーへ必要最小限の操作を依頼して同じ固定commitから再開する。
+- 手順契約を`tests/adapters/test_harness_acceptance.py`、`tests/procedures/test_add_feature_ordering.py`、`tests/procedures/test_derived_project_rollout.py`で固定する。
+
+**今回の限定G3操作**:
+
+| 項目 | Claude Code | Codex | Kiro |
+|---|---|---|---|
+| clean clone | `/private/tmp/inner-platform-harness-g3-claude` | `/private/tmp/inner-platform-harness-g3-codex` | `/private/tmp/inner-platform-harness-g3-kiro` |
+| 使い捨て設定ホーム | `/private/tmp/inner-platform-harness-g3-config-claude` | `/private/tmp/inner-platform-harness-g3-config-codex` | `/private/tmp/inner-platform-harness-g3-config-kiro` |
+| 使い捨てruntime / log | `/private/tmp/inner-platform-harness-g3-runtime-claude` | `/private/tmp/inner-platform-harness-g3-runtime-codex` | `/private/tmp/inner-platform-harness-g3-runtime-kiro` |
+| 確認fixture | `.steering/20990101-g3-claude/` | `.steering/20990101-g3-codex/` | `.steering/20990101-g3-kiro/` |
+| scratch write | `acceptance-scratch/claude.txt`へ`g3-write-ok` | `acceptance-scratch/codex.txt`へ`g3-write-ok` | `acceptance-scratch/kiro.txt`へ`g3-write-ok` |
+| harness内shell | `pwd`を1回 | `pwd`を1回 | `pwd`を1回 |
+
+- 各ハーネスへfixture tasklistのread-only確認、scratch write、`pwd`を各1回依頼する。状態遷移とlintは外側の実行エージェントが固定コマンドで実行する。
+- trust 1回、read / write / shellの各単発確認を上限とし、「常に許可」や既存ユーザー設定への保存を選ばない。製品差でreadが事前許可される場合は承認0回として観察する。
+- clone / 設定ホーム / runtime / log以外へ書き込まず、CLI更新、GitHub Actions、外部API、リモート変更を起動しない。
+
 ## データフロー
 
 ```text
@@ -157,7 +191,7 @@ canonical `v1.5.1..v1.6.1`の49pathを、Replace 16（更新8・削除8）/ Add 
 5. Exclude 6pathの不在、Preserve集合の不変、inner-only hardening 3pathの契約を検証
 6. 6検査の静的検証と実挙動観察
 7. 独立コード/スペック/docsレビュー
-8. complete遷移、候補ゲート、候補commit、3ハーネスG3
+8. complete遷移、候補ゲート、候補commit、実行エージェントによる3ハーネス対話型PTY G3
 9. acceptance記録後の最終ゲート、記録commit、push、PR
 ```
 
@@ -168,6 +202,7 @@ canonical `v1.5.1..v1.6.1`の49pathを、Replace 16（更新8・削除8）/ Add 
 - inner固有表記の上書きやdistribution hygiene違反は除外拡張で隠さず、Merge内容を修正する。
 - G1で裁定できない実競合が判明した場合だけG2としてユーザー判断を求める。
 - G3不合格時は`resume`でactiveへ戻し、影響する検証段から再実施する。
+- G3の外部阻害時は全操作をユーザーへ差し戻さず、必要最小限のログイン・MFA・GUI操作だけを依頼して同じ固定commitから再開する。
 
 ## テスト戦略
 
@@ -197,7 +232,9 @@ canonical `v1.5.1..v1.6.1`の49pathを、Replace 16（更新8・削除8）/ Add 
 ### G3対話型受け入れ
 
 - Claude Code / Codex / Kiroの変更した3ハーネスを対象にする。
-- 候補ゲート成功後の固定commitをclean cloneし、利用許可済みIDEまたは対話型CLIで実施する。
+- 候補ゲート成功後の固定commitをハーネス別にclean cloneし、設定ホームとruntime / logを製品固有の環境変数・設定で使い捨てdirectoryへ向けて、実行エージェントが各対話型CLIをPTYで自動実施する。
+- 計画承認を限定G3操作の事前承認とし、ユーザーには外部阻害時の最小操作だけを依頼する。
+- 既存ユーザー設定・trust storeの変更は0件とし、認証情報や設定を使い捨て環境へコピーしない。GUIは専用能力の例外確認に限定する。
 - 従量課金型LLM headless modeは使用しない。
 
 ## 依存ライブラリ
@@ -227,13 +264,14 @@ scripts/
 3. Merge 24pathをcanonical lifecycle + inner distribution方針で統合し、inner-only hardening 3pathを反映する。
 4. manifest、blob、固有差分を監査する。
 5. 4段検証、振り返り、complete遷移を行う。
-6. 候補ゲート、候補commit、3ハーネスG3、記録後ゲート、記録commit、push、PRを行う。
+6. 候補ゲート、候補commit、実行エージェントによる3ハーネス対話型PTY G3、記録後ゲート、記録commit、push、PRを行う。
 
 ## セキュリティ考慮事項
 
 - 個人プロジェクト名・URL・絶対home path・実作業履歴をinner配布物へ再導入しない。
 - secrets、認証情報、ローカル設定、hook runtime stateをコピーしない。
 - GitHub Actionsを起動せず、従量課金型LLM headless modeを実行しない。
+- G3で永続権限・グローバル設定を変更せず、公式環境変数・設定で隔離した使い捨て設定ホーム、runtime / logとclone内の単発確認だけを許可する。
 - canonical sourceは公開済みrelease tagとcommitへ固定する。
 
 ## パフォーマンス考慮事項

@@ -69,6 +69,10 @@ def test_step4_judges_whether_g3_acceptance_is_required() -> None:
 
         approval = step_section(path, "4.5")
         assert "G3受け入れの要否判定" in approval
+        assert "対話型CLI" in approval
+        assert "PTY" in approval
+        assert "G3全体をユーザーへ差し戻さない" in approval
+        assert "事前承認" in approval
 
 
 def test_step5_loop_consumes_the_implementation_phase_only() -> None:
@@ -219,7 +223,7 @@ def test_step8b_defines_a_noncircular_g3_order() -> None:
             (
                 "**候補ゲート**",
                 "**候補コミット**",
-                "**G3実施**",
+                "**G3自動実施**",
                 "**結果記録**",
                 "**最終ゲート**",
                 "**記録コミット**",
@@ -232,6 +236,17 @@ def test_step8b_defines_a_noncircular_g3_order() -> None:
         assert "手順1(候補ゲート)からやり直す" in branch
         # 記録先は複製ではなく元リポジトリ側のステアリング
         assert "複製ではなく元リポジトリ側" in branch
+        assert "**G3自動実施**" in branch
+        assert "実行エージェント" in branch
+        assert "対話型CLI" in branch
+        assert "PTY" in branch
+        for variable in ("CLAUDE_CONFIG_DIR", "CODEX_HOME", "KIRO_HOME"):
+            assert variable in branch
+        assert "既存ユーザー設定・trust store変更が0件" in branch
+        assert "GUI IDEは標準合格条件にせず" in branch
+        assert "G3操作をユーザーへ差し戻さない" in branch
+        assert "必要最小限の操作をユーザーへ提示" in branch
+        assert "永続権限" in branch
         # 受け入れ記録はC3対象のチェックボックスにしない
         assert "コミット・PR作成・G3受け入れ記録" in step8
         assert "チェックボックスにしない" in step8

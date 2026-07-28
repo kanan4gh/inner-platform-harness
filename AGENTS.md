@@ -78,7 +78,7 @@ steering 手順の実体は `docs/procedures/steering.md`(テンプレートは 
 - **作業状態**: tasklist.mdの`active / paused / complete`をsteering手順で遷移する。通常の応答終了は状態変更ではなく、意図的な中断だけを`paused`と中断記録で表す
 - **通常/完了lint**: 作業中は通常lintが正当な未完了を許容し、PR前のローカル品質ゲートは明示対象だけ`complete`を要求する
 - **GitHub Actions**: 自動起動しない任意の手動ミラーであり、成功をPR完了の必須証拠にしない
-- **実機受け入れ**: `docs/procedures/harness-acceptance.md`に従い、利用許可済みのIDEまたは対話型CLIで行う。従量課金型LLM headless modeを標準受け入れに使わない
+- **実機受け入れ**: `docs/procedures/harness-acceptance.md`に従い、計画承認後は実行エージェントが公式環境変数で切り替えた使い捨て設定ホームへtrustを隔離し、利用許可済みハーネスの対話型CLIをPTYで自動操作する。既存ユーザー設定を変更せず、G3全体をユーザーへ差し戻さない。隔離不能・ログイン・MFA・GUI専用操作等の阻害時だけ最小操作を依頼し、GUIは専用能力の例外確認に限定する。従量課金型LLM headless modeを標準受け入れに使わない
 - Stopフックによる応答終了ブロックは使わない。各ハーネスの差にかかわらず、状態遷移スクリプトとローカル品質ゲートを決定論的な共通経路とする
 
 ## ディレクトリ構造

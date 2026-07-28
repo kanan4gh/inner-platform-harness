@@ -23,7 +23,7 @@
 
 ## trust要件
 
-`.codex/`配下のエージェント定義は、Codex CLIでプロジェクトをtrustした場合にロードされます。Stopフックと`.codex/hooks.json`は配布しないため、フック固有のtrust承認はありません。初回trustと実機受け入れは`docs/procedures/harness-acceptance.md`に従い、対話型セッションで行います。
+`.codex/`配下のエージェント定義は、Codex CLIでプロジェクトをtrustした場合にロードされます。Stopフックと`.codex/hooks.json`は配布しないため、フック固有のtrust承認はありません。G3では`CODEX_HOME`を使い捨て設定ホームへ向け、その`config.toml`の`sqlite_home`を使い捨てruntimeへ固定し、`check_for_update_on_startup=false`にします（logは既定の`$CODEX_HOME/log`内）。既存`~/.codex`とtrust storeを変更せず、計画承認後に実行エージェントがCodex CLIを対話型PTYで自動操作します。認証情報や設定を既存設定ホームからコピーせず、trustを使い捨て設定ホームへ隔離できない場合やログイン等の阻害時だけ、ユーザーへ最小操作を依頼します。詳細は`docs/procedures/harness-acceptance.md`を参照してください。
 
 ## 推奨設定
 

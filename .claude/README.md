@@ -97,7 +97,7 @@
 6. 承認後、`tasklist.md` の**実装フェーズ**が完了するまで実装ループを自動実行（後続フェーズの先取りは禁止）
 7. 4段検証を実行し、4段検証フェーズを消化（段1: pytest/ruff/basedpyright → 段2: 変更種別に応じた実挙動確認 → 段3: `/code-review` → 段4: `implementation-validator`＋docsを変更した場合は `doc-reviewer` を並列起動）
 8. `steering` スキル（振り返りモード）で振り返りとdocs更新を完了し、全チェックを`[x]`にして対象を明示した`steering_state.py --steering ... complete`を実行
-9. pytest、ruff、basedpyright、steering規律、外部有料自動化、配布衛生の6検査からなる最終品質ゲートを1回実行（同じ対象ステアリングを明示）→コミット→push→PR作成→worktree後片付け（マージはユーザー判断）。ハーネスのアダプタ構成・権限・フックを変更した場合はステップ8-BのG3実機受け入れを挟む
+9. pytest、ruff、basedpyright、steering規律、外部有料自動化、配布衛生の6検査からなる最終品質ゲートを1回実行（同じ対象ステアリングを明示）→コミット→push→PR作成→worktree後片付け（マージはユーザー判断）。ハーネスのアダプタ構成・権限・フックを変更した場合は、計画承認を根拠に、`CLAUDE_CONFIG_DIR`を使い捨て設定ホーム、`CLAUDE_CODE_TMPDIR`を使い捨てruntimeへ向け、`DISABLE_UPDATES=1`で更新を止めたClaude Code CLI + 対話型PTYを実行エージェントが自動操作するステップ8-BのG3を挟む。既存`~/.claude`は変更せず、認証情報や設定を使い捨てdirectoryへコピーしない
 
 **重要な設計思想**: **「計画は承認必須・実装は自動」**。承認ゲートは計画提示の1箇所だけです。`tasklist.md`のチェックボックスは実装=ステップ5 / 4段検証=ステップ6 / 振り返りとdocs更新=ステップ7へ排他的に分け、`complete`遷移・最終品質ゲート・コミット・PRは手順が管理します。
 

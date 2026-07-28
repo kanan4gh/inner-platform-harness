@@ -7,7 +7,7 @@
 # 汎用層（AIエージェントとの協働原則）
 
 <!-- SOURCE: inner-platform-harness -->
-<!-- UPDATED: 2026-07-26 (上流v1.5.1同期。軽量パス、終端品質ゲート、G3受け入れ順序、worktree走査除外を反映) -->
+<!-- UPDATED: 2026-07-28 (上流v1.6.1同期。Stopフック廃止、steeringライフサイクル状態、通常/完了lint、明示対象の単一最終ゲートを反映し、社内配布衛生を保持) -->
 <!-- 他のリポジトリへの移植時: このセクションはそのままコピーする -->
 
 ## スペック駆動開発の基本原則
@@ -74,10 +74,12 @@ steering 手順の実体は `docs/procedures/steering.md`(テンプレートは 
 
 #### 品質ゲートと実機受け入れ
 
-- **必須の正**: `uv run python3 scripts/local_quality_gate.py`で、テスト・lint・型検査・steering規律・外部有料自動化・配布衛生の再混入をローカル検証する
+- **必須の正**: PR前は`uv run python3 scripts/local_quality_gate.py --steering [日付付き名]`で対象を明示し、テスト・lint・型検査・steering規律・外部有料自動化・配布衛生の再混入をローカル検証する
+- **作業状態**: tasklist.mdの`active / paused / complete`をsteering手順で遷移する。通常の応答終了は状態変更ではなく、意図的な中断だけを`paused`と中断記録で表す
+- **通常/完了lint**: 作業中は通常lintが正当な未完了を許容し、PR前のローカル品質ゲートは明示対象だけ`complete`を要求する
 - **GitHub Actions**: 自動起動しない任意の手動ミラーであり、成功をPR完了の必須証拠にしない
 - **実機受け入れ**: `docs/procedures/harness-acceptance.md`に従い、利用許可済みのIDEまたは対話型CLIで行う。従量課金型LLM headless modeを標準受け入れに使わない
-- ハーネス差はイベント名ではなく、終了を止める`block`、継続理由を返す`feedback`、出力を返す`stdout`等の**能力**で判断する。能力がない実行面ではローカル品質ゲート等の決定論的経路を代替とする
+- Stopフックによる応答終了ブロックは使わない。各ハーネスの差にかかわらず、状態遷移スクリプトとローカル品質ゲートを決定論的な共通経路とする
 
 ## ディレクトリ構造
 
@@ -238,7 +240,7 @@ uv run basedpyright  # 型チェック
 python3 scripts/steering_lint.py  # ステアリング規律lint
 python3 scripts/metered_automation_lint.py  # 外部有料自動化lint
 python3 scripts/distribution_hygiene_lint.py  # 社内配布衛生lint
-uv run python3 scripts/local_quality_gate.py  # 必須の単一ローカル品質ゲート
+uv run python3 scripts/local_quality_gate.py --steering YYYYMMDD-task-name  # PR前の単一ローカル品質ゲート
 cdk --version        # CDK 動作確認
 sam --version        # SAM CLI 動作確認
 aws sts get-caller-identity  # AWS認証確認
@@ -277,7 +279,7 @@ AGENTS.mdはSDDプロセスの正典であり、3層構造になっています�
 - **併用規約**:
   - 作業開始時に requirements.md の「使用ハーネス」欄に使用ハーネスを記録する(蒸留時にハーネス差を分析するため)
   - 成果物(`.steering/` のステアリングファイル(通常パス3ファイル・軽量パス2ファイル)・tasklist更新形式)は手順書とテンプレートが固定しており、どのハーネスでも同一ステアリングを継続できる
-  - 編集中のtasklistリマインドはClaude Codeのみ。他ハーネスではリアルタイム更新を自律的に徹底する(Stopフックとローカル品質ゲートが最終捕捉)
+  - 編集中のtasklistリマインドはClaude Codeのみ。他ハーネスではリアルタイム更新を自律的に徹底する。中断・再開・完了は全ハーネスで同じ状態遷移スクリプトを使い、ローカル品質ゲートを共通の最終ゲートとする
 
 ### 汎用層を更新したとき（スペック駆動開発の原則を改善した等）
 

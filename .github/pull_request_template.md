@@ -9,7 +9,7 @@
 
 ## ローカル品質ゲート
 
-- 実行コマンド: `uv run python3 scripts/local_quality_gate.py`
+- 実行コマンド: `uv run python3 scripts/local_quality_gate.py --steering YYYYMMDD-task-name`
 - 実行日時:
 - 結果:
 

@@ -29,7 +29,7 @@ git archive --format=tar HEAD | tar -x -C /path/to/empty/inner-platform-harness-
 - remoteが会社Organizationを指している
 - repository visibilityが会社の規程に合っている
 - teamと社員の権限が最小権限になっている
-- `AGENTS.md`の`SOURCE`表記が会社側の正典名を示している
+- `AGENTS.md`の`SOURCE`表記と`scripts/distribution_hygiene_policy.json`の`allowed_source_markers`が、同じ会社側の正典名を示している
 - branch protection、secret scanning、監査設定が会社の規程に合っている
 
 確認例:
@@ -41,6 +41,8 @@ gh repo view --json nameWithOwner,visibility,isTemplate,defaultBranchRef
 ```
 
 `git log`には会社側で作成した初期import以降の履歴だけが表示されることを確認します。forkやmirrorとして個人版の履歴を引き継いだ場合は配布を開始せず、履歴を持たない新規リポジトリへファイルをコピーし直します。
+
+`SOURCE`を変更する場合は、同じコミットで`allowed_source_markers`も更新し、直後に`uv run python3 scripts/distribution_hygiene_lint.py`を実行します。初期import用の日付付きsteeringを作成した後は、公開前に6検査のローカル品質ゲートを`--steering`で対象明示して実行します。
 
 ### 2. テンプレートからプロジェクトを作る
 
@@ -69,7 +71,7 @@ uv sync
 PR前の必須入口は次の1コマンドです。
 
 ```bash
-uv run python3 scripts/local_quality_gate.py
+uv run python3 scripts/local_quality_gate.py --steering YYYYMMDD-task-name
 ```
 
 GitHub Actionsは自動起動しない任意の手動ミラーです。従量課金型LLM headless modeを標準検証や受け入れに使用しません。実機受け入れは[`docs/procedures/harness-acceptance.md`](docs/procedures/harness-acceptance.md)に従い、許可済みのIDEまたは対話型CLIで行います。
